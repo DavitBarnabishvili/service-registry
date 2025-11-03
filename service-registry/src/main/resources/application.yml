@@ -1,20 +1,59 @@
 server:
   port: 8761
 
+spring:
+  application:
+    name: service-registry
+
+  security:
+    user:
+      name: ${EUREKA_USERNAME:admin}
+      password: ${EUREKA_PASSWORD:admin}
+
 eureka:
   instance:
     hostname: localhost
+    health-check-url-path: /actuator/health
+    status-page-url-path: /actuator/info
+
   client:
     register-with-eureka: false
     fetch-registry: false
     service-url:
       defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
 
-spring:
-  application:
-    name: service-registry
+  server:
+    enable-self-preservation: true
+    eviction-interval-timer-in-ms: 60000
+    response-cache-update-interval-ms: 30000
+    renewal-percent-threshold: 0.85
+    wait-time-in-ms-when-sync-empty: 5
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  info:
+    env:
+      enabled: true
 
 logging:
   level:
     com.netflix.eureka: INFO
     com.netflix.discovery: INFO
+    com.gym.crm.registry: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/eureka-server.log
+
+info:
+  app:
+    name: Eureka Service Registry
+    description: Service Discovery Server for Gym CRM Microservices
+    version: 1.0.0
